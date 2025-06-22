@@ -27,6 +27,7 @@
     "@canva/error": "^2.1.0",
     "@canva/platform": "^2.1.0",
     "@canva/user": "^2.1.0",
+    "@google/genai": "^1.6.0",
     "cookie-parser": "1.4.7",
     "cors": "2.8.5",
     "html-react-parser": "5.2.2",
