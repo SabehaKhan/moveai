@@ -1,6 +1,6 @@
 # QuickStickers
 
-QuickStickers is a Canva app that generates four custom PNG stickers based on user input. This prototype app is built by modifying the Canva Generative AI template to replace placeholder images with real sticker generation powered by Gemini and background removal.
+QuickStickers is a Canva AI Agent app that generates four custom PNG stickers based on user input. This prototype app is built by modifying the Canva Generative AI template to replace placeholder images with real sticker generation powered by Gemini and background removal.
 
 ## Features
 
