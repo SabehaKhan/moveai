@@ -9,6 +9,9 @@ QuickStickers is a Canva app that generates four custom PNG stickers based on us
 - Automatic background removal using @imgly/background-removal-node
 - Canva integration so that users can drag and drop
 
+## Notice
+   Currently this app is a prototype and runs locally only.
+
 ## Requirements
 
 - Node.js `v18` or `v20.10.0`
@@ -87,8 +90,8 @@ To configure the backend:
 
 1. Navigate to the [Your apps](https://www.canva.com/developers/apps) page.
 2. Copy the ID of an app from the **App ID** column.
-3. In the `.env` file, set `CANVA_APP_ID` to the ID of the app.
-4. Obtain your Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey) and add it to your .env file 
+3. In the create an `.env` file, set `CANVA_APP_ID` to the ID of the app.
+4. Obtain your Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey) and add it to your `.env` file 
 
    For example:
 
