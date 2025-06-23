@@ -203,6 +203,7 @@
 
 import * as express from "express";
 import { GoogleGenAI, Modality, HarmCategory, HarmBlockThreshold } from "@google/genai";
+import { removeBackground } from "@imgly/background-removal-node";
 
 interface ImageResponse {
   fullsize: { width: number; height: number; url: string };
@@ -235,10 +236,10 @@ export const createImageRouter = () => {
 
   // Gemini image generation function
   async function generateGeminiImage(prompt: string): Promise<ImageResponse> {
-    const stickerPrompt = `Create a fun, colorful, work-safe PNG sticker of: ${prompt}. 
-                         The image should be sticker suitable for all ages. 
-                         The PNG image should have no background.
-                         Vector art style, bold outlines, no shadows.`;
+    const stickerPrompt = `Create a fun, colorful, work-safe PNG sticker of: ${prompt}.
+  Only the subject should be visible with white background.
+  Use vector art style, bold outlines, and no shadows.
+  Return only a PNG image.`;
 
     const config = {
       responseModalities: [Modality.TEXT, Modality.IMAGE],
@@ -268,27 +269,41 @@ export const createImageRouter = () => {
       throw new Error("Invalid candidate structure from Gemini API");
     }
 
-    for (const part of candidate.content.parts) {
-      if (part.inlineData && part.inlineData.data) {
-        const imageData = part.inlineData.data;
-        const dataUrl = `data:image/png;base64,${imageData}`;
-        
+  
+  for (const part of candidate.content.parts) {
+  if (part.inlineData && part.inlineData.data) {
+    const imageData = part.inlineData.data;
+    const buffer = Buffer.from(imageData, 'base64');
+const blobInput = new Blob([buffer], { type: 'image/png' }); // Critical fix
+
+try {
+  const blob = await removeBackground(blobInput, {
+    publicPath: `https://cdn.jsdelivr.net/npm/@imgly/background-removal-node@1.4.5/dist/`,
+    debug: true
+  });
+  
+  const arrayBuffer = await blob.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString('base64');
+  const processedDataUrl = `data:image/png;base64,${base64}`;
+  
+  return { 
+    fullsize: { width: 1024, height: 1024, url: processedDataUrl }, 
+    thumbnail: { width: 512, height: 512, url: processedDataUrl },
+    label: prompt
+  };
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Background removal failed for ${prompt}:`, error);
+        const originalDataUrl = `data:image/png;base64,${imageData}`;
         return {
-          fullsize: {
-            width: 1024,
-            height: 1024,
-            url: dataUrl,
-          },
-          thumbnail: {
-            width: 512,
-            height: 512,
-            url: dataUrl,
-          },
-          label: prompt,
+          fullsize: { width: 1024, height: 1024, url: originalDataUrl },
+          thumbnail: { width: 512, height: 512, url: originalDataUrl },
+          label: prompt
         };
       }
     }
-    throw new Error("No image generated");
+  }
+  throw new Error("No image generated");
   }
 
   router.get(Routes.CREDITS, async (req, res) => {
